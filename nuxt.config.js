@@ -9,6 +9,10 @@ export default {
     dir: 'docs'
   },
 
+  router: {
+    base: process.env.NODE_ENV === 'development' ? '' : '/acasia-poster'
+  },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'acasia-poster',
