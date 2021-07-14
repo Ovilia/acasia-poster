@@ -5,6 +5,10 @@ export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
+  generate: {
+    dir: 'doc'
+  },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'acasia-poster',
