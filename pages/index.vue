@@ -10,6 +10,7 @@
         <img class="author-img" v-if="imageUrl" :src="imageUrl" ref="avatar"
           :style="{'width': avatarPos.width + 'vh', 'height': avatarPos.height + 'vh', 'left': avatarPos.left + 'vh', 'top': avatarPos.top + 'vh'}"
         >
+        <div class="bg"></div>
         <img class="poster-template" :src="'poster-template-' + lang + '.png'">
         <div class="poster-content">
           <div class="title">{{ title }}</div>
@@ -20,7 +21,7 @@
         </div>
       </div>
     </el-col>
-    <el-col :span="8" class="poster-control">
+    <el-col :span="8" class="poster-control" v-loading="isDownloading" element-loading-text="生成海报中">
       <el-row>
         <h1>ApacheCon Asia 2021 海报生成器</h1>
         <el-radio-group size="small" v-model="lang">
@@ -28,16 +29,14 @@
           <el-radio-button label="en"></el-radio-button>
         </el-radio-group>
       </el-row>
-      <el-form v-loading="isDownloading"
-        element-loading-text="生成海报中"
-      >
+      <el-form>
         <el-form-item label="讲师姓名">
           <el-input v-model="name" />
         </el-form-item>
         <el-form-item label="讲师职位">
           <el-input v-model="title" />
         </el-form-item>
-        <el-form-item label="讲师照片">
+        <el-form-item :label="'讲师照片' + (imageUrl ? '（可在海报中拖动）' : '')">
           <el-col :span="3">
             <input type="file" ref="avatarInput" style="display:none"
               @change="avatarChange"
@@ -46,7 +45,7 @@
               <i class="el-icon-plus avatar-icon"></i>
             </a>
           </el-col>
-          <el-col :span="12" class="icon-panel">
+          <el-col :span="9" class="icon-panel">
             <a href="javascript:;" @click="zoomIn()">
               <i class="el-icon-zoom-in avatar-icon" v-if="imageUrl"></i>
             </a>
@@ -309,6 +308,16 @@ h1 {
     user-select: none;
   }
 
+    .bg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      z-index: -20;
+    }
+
     .poster-template {
       height: 100vh;
     }
@@ -322,7 +331,7 @@ h1 {
       padding: 37vh 3vh 0 3vh;
       text-align: center;
       color: #fff;
-      font-size: 1vh;
+      font-size: 2vh;
     }
 
       .author-img {
@@ -349,7 +358,7 @@ h1 {
       }
 
       .time {
-        font-size: 0.9vh;
+        font-size: 2vh;
         color: #ccc;
       }
 
