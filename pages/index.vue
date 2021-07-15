@@ -1,7 +1,15 @@
 <template>
   <el-row type="flex" class="poster-container" justify="center">
     <el-col :span="12">
-      <div id="poster-preview">
+      <div id="poster-preview"
+        :style="{'cursor': imageUrl ? 'move' : 'default'}"
+        @mousedown="mouseDown($event)"
+        @mousemove="mouseMove($event)"
+        @mouseup="mouseUp($event)"
+      >
+        <img class="author-img" v-if="imageUrl" :src="imageUrl" ref="avatar"
+          :style="{'width': avatarPos.width + 'vh', 'height': avatarPos.height + 'vh', 'left': avatarPos.left + 'vh', 'top': avatarPos.top + 'vh'}"
+        >
         <img class="poster-template" src="poster-template.png">
         <div class="poster-content">
           <div class="title">{{ title }}</div>
@@ -13,12 +21,33 @@
       </div>
     </el-col>
     <el-col :span="8" class="poster-control">
+      <h1>ApacheCon Asia 2021 海报生成器</h1>
       <el-form>
         <el-form-item label="讲师姓名">
           <el-input v-model="name" />
         </el-form-item>
         <el-form-item label="讲师职位">
           <el-input v-model="title" />
+        </el-form-item>
+        <el-form-item label="头像">
+          <el-col :span="3">
+          <el-upload
+            class="avatar-uploader"
+            action="#"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess">
+            <i class="el-icon-plus avatar-icon" v-if="!imageUrl"></i>
+            <i class="el-icon-refresh avatar-icon" v-if="imageUrl"></i>
+          </el-upload>
+          </el-col>
+          <el-col :span="6">
+          <a href="javascript:;" @click="zoomIn()">
+            <i class="el-icon-zoom-in avatar-icon" v-if="imageUrl"></i>
+          </a>
+          <a href="javascript:;" @click="zoomOut()">
+            <i class="el-icon-zoom-out avatar-icon" v-if="imageUrl"></i>
+          </a>
+          </el-col>
         </el-form-item>
         <el-form-item label="演讲题目">
           <el-checkbox v-model="isKeynote">主题演讲</el-checkbox>
@@ -52,6 +81,7 @@ import Vue from 'vue'
 export default Vue.extend({
   data() {
     return {
+      imageUrl: null as unknown as string,
       title: 'Apache ECharts VP',
       name: '羡辙',
       topic: 'Dirty-rectangle Rendering with Apache ECharts',
@@ -59,7 +89,24 @@ export default Vue.extend({
       isKeynote: false,
 
       nameFontSize: 1,
-      topicFontSize: 1
+      topicFontSize: 1,
+
+      avatarDefaultPos: {
+        width: 0,
+        height: 0,
+        top: 0,
+        left: 0
+      },
+      avatarPos: {
+        width: 0,
+        height: 0,
+        top: 0,
+        left: 0
+      },
+      avatarZoom: 1,
+      isMouseDown: false,
+      mouseX: 0,
+      mouseY: 0
     };
   },
 
@@ -69,6 +116,61 @@ export default Vue.extend({
   methods: {
     download() {
       alert('开发中！');
+    },
+
+    // @ts-ignore
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw);
+      const img = new Image();
+      img.onload = () => {
+        const h = 417 * 100 / 2208;
+        const w = h / img.height * img.width;
+        const top = 373 / 2208 * 100;
+        const pw = 100 / 2208 * 1242;
+        const left = (pw - w) / 2;
+        this.avatarDefaultPos.width = this.avatarPos.width = w;
+        this.avatarDefaultPos.height = this.avatarPos.height = h;
+        this.avatarDefaultPos.left = this.avatarPos.left = left;
+        this.avatarDefaultPos.top = this.avatarPos.top = top;
+      };
+      img.src = this.imageUrl;
+    },
+
+    mouseDown(event: MouseEvent) {
+      if (!this.imageUrl) {
+        return;
+      }
+      this.isMouseDown = true;
+      this.mouseX = event.pageX;
+      this.mouseY = event.pageY;
+    },
+
+    mouseMove(event: MouseEvent) {
+      if (!this.isMouseDown) {
+        return;
+      }
+      const ratio = 100 / window.innerHeight;
+
+      this.avatarPos.left += (event.pageX - this.mouseX) * ratio;
+      this.avatarPos.top += (event.pageY - this.mouseY) * ratio;
+      this.mouseX = event.pageX;
+      this.mouseY = event.pageY;
+    },
+
+    mouseUp(event: MouseEvent) {
+      this.isMouseDown = false;
+    },
+
+    zoomIn() {
+      this.avatarZoom += 0.1;
+      this.avatarPos.width = this.avatarDefaultPos.width * this.avatarZoom;
+      this.avatarPos.height = this.avatarDefaultPos.height * this.avatarZoom;
+    },
+
+    zoomOut() {
+      this.avatarZoom -= 0.1;
+      this.avatarPos.width = this.avatarDefaultPos.width * this.avatarZoom;
+      this.avatarPos.height = this.avatarDefaultPos.height * this.avatarZoom;
     }
   }
 })
@@ -94,6 +196,12 @@ export default Vue.extend({
   src: url(~assets/SourceHanSerifSC-Heavy.otf) format('opentype');
 }
 
+h1 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-family: 'SourceHanSerifSC', 'Open Sans';
+}
+
 .poster-container {
   position: absolute;
   left: 0;
@@ -106,6 +214,9 @@ export default Vue.extend({
   #poster-preview {
     position: relative;
     width: max-content;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
     .poster-template {
@@ -123,6 +234,10 @@ export default Vue.extend({
       color: #fff;
       font-size: 1vh;
     }
+
+      .author-img {
+        position: absolute;
+      }
 
       .title {
         font-weight: normal;
@@ -152,6 +267,41 @@ export default Vue.extend({
         margin: 0.5vh auto;
         height: 5vh;
       }
+
+.el-form-item {
+  margin-bottom: 5px;
+}
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+
+.avatar-icon {
+  font-size: 22px;
+  color: #ccc;
+  width: 40px;
+  height: 40px;
+  line-height: 44px;
+  text-align: center;
+}
+
+.el-upload:hover .avatar-icon, a:hover .avatar-icon {
+  color: #409EFF;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
 
 .info, .info a {
   color: #aaa;
