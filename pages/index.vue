@@ -37,26 +37,25 @@
         <el-form-item label="讲师职位">
           <el-input v-model="title" />
         </el-form-item>
-        <el-form-item label="头像">
+        <el-form-item label="讲师照片">
           <el-col :span="3">
-          <el-upload
-            class="avatar-uploader"
-            action="#"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess">
-            <i class="el-icon-plus avatar-icon"></i>
-          </el-upload>
+            <input type="file" ref="avatarInput" style="display:none"
+              @change="avatarChange"
+            />
+            <a class="avatar-uploader" href="javascript:;" @click="setAvatar()">
+              <i class="el-icon-plus avatar-icon"></i>
+            </a>
           </el-col>
-          <el-col :span="12">
-          <a href="javascript:;" @click="zoomIn()">
-            <i class="el-icon-zoom-in avatar-icon" v-if="imageUrl"></i>
-          </a>
-          <a href="javascript:;" @click="zoomOut()">
-            <i class="el-icon-zoom-out avatar-icon" v-if="imageUrl"></i>
-          </a>
-          <a href="javascript:;" @click="zoomReset()">
-            <i class="el-icon-refresh-left avatar-icon" v-if="imageUrl"></i>
-          </a>
+          <el-col :span="12" class="icon-panel">
+            <a href="javascript:;" @click="zoomIn()">
+              <i class="el-icon-zoom-in avatar-icon" v-if="imageUrl"></i>
+            </a>
+            <a href="javascript:;" @click="zoomOut()">
+              <i class="el-icon-zoom-out avatar-icon" v-if="imageUrl"></i>
+            </a>
+            <a href="javascript:;" @click="zoomReset()">
+              <i class="el-icon-refresh-left avatar-icon" v-if="imageUrl"></i>
+            </a>
           </el-col>
         </el-form-item>
         <el-form-item label="演讲题目">
@@ -67,10 +66,30 @@
           <el-input v-model="time" />
         </el-form-item>
         <el-form-item label="字号调整（讲师姓名）">
-          <el-input-number size="medium" v-model="nameFontSize" :min="0.5" :max="2" :step="0.1" label="倍率"></el-input-number>
+          <div :span="12">
+            <a href="javascript:;" @click="nameFontAdd()">
+              <i class="el-icon-zoom-in avatar-icon"></i>
+            </a>
+            <a href="javascript:;" @click="nameFontMinus()">
+              <i class="el-icon-zoom-out avatar-icon"></i>
+            </a>
+            <a href="javascript:;" @click="nameFontReset()">
+              <i class="el-icon-refresh-left avatar-icon"></i>
+            </a>
+          </div>
         </el-form-item>
         <el-form-item label="字号调整（演讲题目）">
-          <el-input-number size="medium" v-model="topicFontSize" :min="0.5" :max="2" :step="0.1" label="倍率"></el-input-number>
+          <div :span="12">
+            <a href="javascript:;" @click="topicFontAdd()">
+              <i class="el-icon-zoom-in avatar-icon"></i>
+            </a>
+            <a href="javascript:;" @click="topicFontMinus()">
+              <i class="el-icon-zoom-out avatar-icon"></i>
+            </a>
+            <a href="javascript:;" @click="topicFontReset()">
+              <i class="el-icon-refresh-left avatar-icon"></i>
+            </a>
+          </div>
         </el-form-item>
 
         <el-form-item>
@@ -102,6 +121,7 @@ export default Vue.extend({
       topic: 'Dirty-rectangle Rendering with Apache ECharts',
       time: '2021.8.6 14:10 GMT+8',
       isKeynote: false,
+      avatarInput: null,
 
       nameFontSize: 1,
       topicFontSize: 1,
@@ -144,24 +164,6 @@ export default Vue.extend({
           link.download = this.name + '.jpeg';
           link.click();
         })
-    },
-
-    // @ts-ignore
-    handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
-      const img = new Image();
-      img.onload = () => {
-        const h = 417 * 100 / 2208;
-        const w = h / img.height * img.width;
-        const top = 373 / 2208 * 100;
-        const pw = 100 / 2208 * 1242;
-        const left = (pw - w) / 2;
-        this.avatarDefaultPos.width = this.avatarPos.width = w;
-        this.avatarDefaultPos.height = this.avatarPos.height = h;
-        this.avatarDefaultPos.left = this.avatarPos.left = left;
-        this.avatarDefaultPos.top = this.avatarPos.top = top;
-      };
-      img.src = this.imageUrl;
     },
 
     mouseDown(event: MouseEvent) {
@@ -207,6 +209,58 @@ export default Vue.extend({
       this.avatarPos.height = this.avatarDefaultPos.height;
       this.avatarPos.left = this.avatarDefaultPos.left;
       this.avatarPos.top = this.avatarDefaultPos.top;
+    },
+
+    nameFontAdd() {
+      this.nameFontSize += 0.1;
+    },
+
+    nameFontMinus() {
+      this.nameFontSize -= 0.1;
+    },
+
+    nameFontReset() {
+      this.nameFontSize = 1;
+    },
+
+    topicFontAdd() {
+      this.topicFontSize += 0.1;
+    },
+
+    topicFontMinus() {
+      this.topicFontSize -= 0.1;
+    },
+
+    topicFontReset() {
+      this.topicFontSize = 1;
+    },
+
+    setAvatar() {
+      if (this.$refs.avatarInput) {
+        (this.$refs.avatarInput as HTMLElement).click();
+      }
+    },
+
+    // @ts-ignore
+    avatarChange(event) {
+      const file = event.target.files && event.target.files.length ? event.target.files[0] : null;
+      if (file) {
+        this.imageUrl = window.URL.createObjectURL(file);
+
+        const img = new Image();
+        img.onload = () => {
+          const h = 417 * 100 / 2208;
+          const w = h / img.height * img.width;
+          const top = 373 / 2208 * 100;
+          const pw = 100 / 2208 * 1242;
+          const left = (pw - w) / 2;
+          this.avatarDefaultPos.width = this.avatarPos.width = w;
+          this.avatarDefaultPos.height = this.avatarPos.height = h;
+          this.avatarDefaultPos.left = this.avatarPos.left = left;
+          this.avatarDefaultPos.top = this.avatarPos.top = top;
+        };
+        img.src = this.imageUrl;
+      }
     }
   }
 })
@@ -309,7 +363,11 @@ h1 {
   margin-bottom: 5px;
 }
 
-.avatar-uploader .el-upload {
+.avatar-uploader {
+  display: inline-block;
+  margin-top: 10px;
+  width: 40px;
+  height: 40px;
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
   cursor: pointer;
@@ -317,7 +375,7 @@ h1 {
   overflow: hidden;
 }
 
-.avatar-uploader .el-upload:hover {
+.avatar-uploader:hover {
   border-color: #409EFF;
 }
 
@@ -326,8 +384,12 @@ h1 {
   color: #ccc;
   width: 40px;
   height: 40px;
-  line-height: 44px;
+  line-height: 40px;
   text-align: center;
+}
+
+.icon-panel {
+  margin-top: 12px;
 }
 
 .el-upload:hover .avatar-icon, a:hover .avatar-icon {
