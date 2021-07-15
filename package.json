@@ -11,7 +11,8 @@
   "dependencies": {
     "core-js": "^3.15.1",
     "element-ui": "^2.15.2",
-    "nuxt": "^2.15.7"
+    "nuxt": "^2.15.7",
+    "retina-dom-to-image": "^2.5.6"
   },
   "devDependencies": {
     "@nuxt/types": "^2.15.7",

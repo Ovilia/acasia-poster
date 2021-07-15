@@ -22,7 +22,9 @@
     </el-col>
     <el-col :span="8" class="poster-control">
       <h1>ApacheCon Asia 2021 海报生成器</h1>
-      <el-form>
+      <el-form v-loading="isDownloading"
+        element-loading-text="生成海报中"
+      >
         <el-form-item label="讲师姓名">
           <el-input v-model="name" />
         </el-form-item>
@@ -36,16 +38,18 @@
             action="#"
             :show-file-list="false"
             :on-success="handleAvatarSuccess">
-            <i class="el-icon-plus avatar-icon" v-if="!imageUrl"></i>
-            <i class="el-icon-refresh avatar-icon" v-if="imageUrl"></i>
+            <i class="el-icon-plus avatar-icon"></i>
           </el-upload>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="12">
           <a href="javascript:;" @click="zoomIn()">
             <i class="el-icon-zoom-in avatar-icon" v-if="imageUrl"></i>
           </a>
           <a href="javascript:;" @click="zoomOut()">
             <i class="el-icon-zoom-out avatar-icon" v-if="imageUrl"></i>
+          </a>
+          <a href="javascript:;" @click="zoomReset()">
+            <i class="el-icon-refresh-left avatar-icon" v-if="imageUrl"></i>
           </a>
           </el-col>
         </el-form-item>
@@ -64,7 +68,10 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="download()">生成海报</el-button>
+          <el-button type="primary" @click="download()"
+          >
+            生成海报
+          </el-button>
         </el-form-item>
 
         <el-form-item class="info">
@@ -76,7 +83,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
+import domtoimage from 'retina-dom-to-image';
 
 export default Vue.extend({
   data() {
@@ -106,7 +114,10 @@ export default Vue.extend({
       avatarZoom: 1,
       isMouseDown: false,
       mouseX: 0,
-      mouseY: 0
+      mouseY: 0,
+      isDownloading: false,
+
+      posterBase64: ''
     };
   },
 
@@ -115,7 +126,17 @@ export default Vue.extend({
 
   methods: {
     download() {
-      alert('开发中！');
+      this.isDownloading = true;
+      domtoimage.toJpeg(document.getElementById('poster-preview'))
+        .then(url => {
+          console.log(url);
+          this.posterBase64 = url;
+          this.isDownloading = false;
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = this.name + '.jpeg';
+          link.click();
+        })
     },
 
     // @ts-ignore
@@ -162,15 +183,23 @@ export default Vue.extend({
     },
 
     zoomIn() {
-      this.avatarZoom += 0.1;
+      this.avatarZoom += 0.05;
       this.avatarPos.width = this.avatarDefaultPos.width * this.avatarZoom;
       this.avatarPos.height = this.avatarDefaultPos.height * this.avatarZoom;
     },
 
     zoomOut() {
-      this.avatarZoom -= 0.1;
+      this.avatarZoom -= 0.05;
       this.avatarPos.width = this.avatarDefaultPos.width * this.avatarZoom;
       this.avatarPos.height = this.avatarDefaultPos.height * this.avatarZoom;
+    },
+
+    zoomReset() {
+      this.avatarZoom = 1;
+      this.avatarPos.width = this.avatarDefaultPos.width;
+      this.avatarPos.height = this.avatarDefaultPos.height;
+      this.avatarPos.left = this.avatarDefaultPos.left;
+      this.avatarPos.top = this.avatarDefaultPos.top;
     }
   }
 })
@@ -237,6 +266,7 @@ h1 {
 
       .author-img {
         position: absolute;
+        z-index: -10;
       }
 
       .title {
