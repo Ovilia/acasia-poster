@@ -10,18 +10,24 @@
         <img class="author-img" v-if="imageUrl" :src="imageUrl" ref="avatar"
           :style="{'width': avatarPos.width + 'vh', 'height': avatarPos.height + 'vh', 'left': avatarPos.left + 'vh', 'top': avatarPos.top + 'vh'}"
         >
-        <img class="poster-template" src="poster-template.png">
+        <img class="poster-template" :src="'poster-template-' + lang + '.png'">
         <div class="poster-content">
           <div class="title">{{ title }}</div>
           <div class="name" :style="{'font-size': 3.7 * nameFontSize + 'vh'}">{{ name }}</div>
           <div class="topic" :style="{'font-size': 2.3 * topicFontSize + 'vh'}">{{ topic }}</div>
           <div class="time">{{ time }}</div>
-          <img class="keynote" src="keynote.png" v-if="isKeynote">
+          <img class="keynote" :src="'keynote-' + lang + '.png'" v-if="isKeynote">
         </div>
       </div>
     </el-col>
     <el-col :span="8" class="poster-control">
-      <h1>ApacheCon Asia 2021 海报生成器</h1>
+      <el-row>
+        <h1>ApacheCon Asia 2021 海报生成器</h1>
+        <el-radio-group size="small" v-model="lang">
+          <el-radio-button label="zh"></el-radio-button>
+          <el-radio-button label="en"></el-radio-button>
+        </el-radio-group>
+      </el-row>
       <el-form v-loading="isDownloading"
         element-loading-text="生成海报中"
       >
@@ -84,6 +90,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+// @ts-ignore
 import domtoimage from 'retina-dom-to-image';
 
 export default Vue.extend({
@@ -116,8 +123,9 @@ export default Vue.extend({
       mouseX: 0,
       mouseY: 0,
       isDownloading: false,
+      posterBase64: '',
 
-      posterBase64: ''
+      lang: 'zh'
     };
   },
 
@@ -128,8 +136,7 @@ export default Vue.extend({
     download() {
       this.isDownloading = true;
       domtoimage.toJpeg(document.getElementById('poster-preview'))
-        .then(url => {
-          console.log(url);
+        .then((url: string) => {
           this.posterBase64 = url;
           this.isDownloading = false;
           const link = document.createElement('a');
