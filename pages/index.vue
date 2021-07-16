@@ -30,8 +30,18 @@
         </el-radio-group>
       </el-row>
       <el-form>
+        <el-form-item label="论坛名称" id="track">
+          <el-autocomplete
+            v-model="track"
+            :fetch-suggestions="trackQuery"
+          ></el-autocomplete>
+        </el-form-item>
         <el-form-item label="讲师姓名">
-          <el-input v-model="name" />
+          <el-autocomplete
+            v-model="name"
+            :fetch-suggestions="nameQuery"
+            @select="nameSelect"
+          ></el-autocomplete>
         </el-form-item>
         <el-form-item label="讲师职位">
           <el-input v-model="title" />
@@ -110,15 +120,70 @@
 import Vue from 'vue';
 // @ts-ignore
 import domtoimage from 'retina-dom-to-image';
+import trackZhRaw from './data/track-zh';
+import trackEnRaw from './data/track-en';
+import trackKeyRaw from './data/track-keynote';
+
+type SpeechInfo = {
+  track: string,
+  title: string,
+  name: string,
+  topic: string,
+  time: string,
+  isKeynote: boolean
+};
+
+const trackKey = trackKeyRaw.split('\n').slice(2).filter(line => !!line);
+
+function getTrackInfo(raw: string, isZh: boolean): SpeechInfo[] {
+  let infos = raw.split('\n').slice(2)
+    .filter(line => !!line)
+    .map(line => {
+      const arr = line.split(',');
+      return {
+        track: arr[2],
+        title: arr[4],
+        name: arr[1],
+        topic: arr[3],
+        time: arr[5],
+        isKeynote: false
+      };
+    });
+
+  // add keynote
+  infos = infos.concat(
+    trackKey.filter(line => {
+      return isZh === /[\u4e00-\u9fa5]/.test(line);
+    })
+      .map(line => {
+        const arr = line.split(',');
+        return {
+          track: arr[0],
+          title: arr[2],
+          name: arr[1],
+          topic: arr[3],
+          time: arr[4],
+          isKeynote: true
+        };
+      })
+  );
+
+  return infos;
+}
+
+const trackZh = getTrackInfo(trackZhRaw, true);
+const trackEn = getTrackInfo(trackEnRaw, false);
+console.log(trackZh, trackEn)
 
 export default Vue.extend({
   data() {
     return {
+      track: '',
       imageUrl: null as unknown as string,
-      title: 'Apache ECharts VP',
-      name: '羡辙',
-      topic: 'Dirty-rectangle Rendering with Apache ECharts',
-      time: '2021.8.6 14:10 GMT+8',
+      title: '',
+      name: '',
+      topic: '',
+      time: '',
       isKeynote: false,
       avatarInput: null,
 
@@ -152,6 +217,40 @@ export default Vue.extend({
   },
 
   methods: {
+    trackQuery(str: string, cb: Function) {
+      const trackInfos = this.lang === 'zh' ? trackZh : trackEn;
+      const result = str
+        ? trackInfos.filter(info => info.track === str)
+        : trackInfos;
+      const distinct = result.map(info => info.track)
+        .filter((track, index, self) => self.indexOf(track) === index);
+      cb(distinct.map(track => {
+        return {value: track}
+      }));
+    },
+
+    nameQuery(str: string, cb: Function) {
+      const trackInfos = this.lang === 'zh' ? trackZh : trackEn;
+      const result = str
+        ? trackInfos.filter(info => info.name === str)
+        : trackInfos.filter(info => info.track === this.track);
+      cb(result.map(track => {
+        return {
+          value: track.name,
+          track
+        }
+      }));
+    },
+
+    nameSelect(item: {track: SpeechInfo, value: string}) {
+      this.topic = item.track.topic;
+      this.time = item.track.time;
+      this.title = item.track.title;
+      this.isKeynote = item.track.isKeynote;
+      this.nameFontReset();
+      this.topicFontReset();
+    },
+
     download() {
       this.isDownloading = true;
       domtoimage.toJpeg(document.getElementById('poster-preview'))
@@ -303,6 +402,7 @@ h1 {
   #poster-preview {
     position: relative;
     width: max-content;
+    height: 100vh;
     overflow: hidden;
     -webkit-user-select: none;
     user-select: none;
@@ -370,6 +470,10 @@ h1 {
 
 .el-form-item {
   margin-bottom: 5px;
+}
+
+#track {
+  margin-top: 10px;
 }
 
 .avatar-uploader {
