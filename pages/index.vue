@@ -448,6 +448,7 @@ h1 {
         color: #FFE342;
         font-family: 'SourceHanSerifSC', 'Open Sans';
         font-size: 3.7vh;
+        font-weight: bold;
       }
 
       .topic {
