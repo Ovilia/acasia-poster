@@ -1,6 +1,8 @@
 # acasia-poster
 
-This is a poster generator for ApacheCon Asia 2021.
+This is a poster generator for ApacheCon Asia 2021. [[Run]](http://zhangwenli.com/acasia-poster/)
+
+It provides a form to input the name, title and other information so that each speaker of the event can generate their own poster easily with auto-completion.
 
 ## Setup
 
