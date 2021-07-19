@@ -173,7 +173,6 @@ function getTrackInfo(raw: string, isZh: boolean): SpeechInfo[] {
 
 const trackZh = getTrackInfo(trackZhRaw, true);
 const trackEn = getTrackInfo(trackEnRaw, false);
-console.log(trackZh, trackEn)
 
 export default Vue.extend({
   data() {
