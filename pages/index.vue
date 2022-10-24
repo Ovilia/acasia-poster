@@ -179,7 +179,7 @@ export default Vue.extend({
     return {
       track: '',
       imageUrl: null as unknown as string,
-      title: 'CosCon\'22 志愿者',
+      title: 'COSCon\'22 志愿者',
       name: '',
       topic: '',
       time: '',
