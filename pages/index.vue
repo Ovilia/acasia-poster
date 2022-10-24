@@ -15,19 +15,19 @@
         <div class="poster-content">
           <div class="title">{{ title }}</div>
           <div class="name" :style="{'font-size': 3.7 * nameFontSize + 'vh'}">{{ name }}</div>
-          <div class="topic" :style="{'font-size': 2.3 * topicFontSize + 'vh'}">{{ topic }}</div>
-          <div class="time">{{ time }}</div>
-          <img class="keynote" :src="'keynote-' + lang + '.png'" v-if="isKeynote">
+          <!-- <div class="topic" :style="{'font-size': 2.3 * topicFontSize + 'vh'}">{{ topic }}</div> -->
+          <!-- <div class="time">{{ time }}</div> -->
+          <!-- <img class="keynote" :src="'keynote-' + lang + '.png'" v-if="isKeynote"> -->
         </div>
       </div>
     </el-col>
     <el-col :span="8" class="poster-control" v-loading="isDownloading" element-loading-text="生成海报中">
       <el-row>
-        <h1>ApacheCon Asia 2021 海报生成器</h1>
-        <el-radio-group size="small" v-model="lang">
+        <h1>2022 中国开源年会海报生成器</h1>
+        <!-- <el-radio-group size="small" v-model="lang">
           <el-radio-button label="zh"></el-radio-button>
           <el-radio-button label="en"></el-radio-button>
-        </el-radio-group>
+        </el-radio-group> -->
       </el-row>
       <el-form>
         <el-form-item label="论坛名称" id="track">
@@ -36,17 +36,17 @@
             :fetch-suggestions="trackQuery"
           ></el-autocomplete>
         </el-form-item>
-        <el-form-item label="讲师姓名">
+        <el-form-item label="姓名">
           <el-autocomplete
             v-model="name"
             :fetch-suggestions="nameQuery"
             @select="nameSelect"
           ></el-autocomplete>
         </el-form-item>
-        <el-form-item label="讲师职位">
+        <el-form-item label="身份">
           <el-input v-model="title" />
         </el-form-item>
-        <el-form-item :label="'讲师照片' + (imageUrl ? '（可在海报中拖动）' : '')">
+        <el-form-item :label="'头像' + (imageUrl ? '（可在海报中拖动）' : '')">
           <el-col :span="3">
             <input type="file" ref="avatarInput" style="display:none"
               @change="avatarChange"
@@ -67,14 +67,14 @@
             </a>
           </el-col>
         </el-form-item>
-        <el-form-item label="演讲题目">
+        <!-- <el-form-item label="演讲题目">
           <el-checkbox v-model="isKeynote">主题演讲</el-checkbox>
           <el-input v-model="topic" />
-        </el-form-item>
-        <el-form-item label="演讲时间">
+        </el-form-item> -->
+        <!-- <el-form-item label="演讲时间">
           <el-input v-model="time" />
-        </el-form-item>
-        <el-form-item label="字号调整（讲师姓名）">
+        </el-form-item> -->
+        <el-form-item label="字号调整（姓名）">
           <div :span="12">
             <a href="javascript:;" @click="nameFontAdd()">
               <i class="el-icon-zoom-in avatar-icon"></i>
@@ -87,7 +87,7 @@
             </a>
           </div>
         </el-form-item>
-        <el-form-item label="字号调整（演讲题目）">
+        <!-- <el-form-item label="字号调整（演讲题目）">
           <div :span="12">
             <a href="javascript:;" @click="topicFontAdd()">
               <i class="el-icon-zoom-in avatar-icon"></i>
@@ -99,7 +99,7 @@
               <i class="el-icon-refresh-left avatar-icon"></i>
             </a>
           </div>
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form-item>
           <el-button type="primary" @click="download()"
@@ -109,7 +109,7 @@
         </el-form-item>
 
         <el-form-item class="info">
-          <i class="el-icon-service"></i> 本工具由 <a href="http://github.com/Ovilia">@Ovilia</a> 开发，<a href="mailto:oviliazhang@gmail.com">问题反馈</a>
+          <i class="el-icon-service"></i> 本工具由 <a href="http://github.com/Ovilia">@Ovilia</a> 开发，由开源社二次开发
         </el-form-item>
       </el-form>
     </el-col>
@@ -122,7 +122,7 @@ import Vue from 'vue';
 import domtoimage from 'retina-dom-to-image';
 import trackZhRaw from './data/track-zh';
 import trackEnRaw from './data/track-en';
-import trackKeyRaw from './data/track-keynote';
+// import trackKeyRaw from './data/track-keynote';
 
 type SpeechInfo = {
   track: string,
@@ -133,7 +133,7 @@ type SpeechInfo = {
   isKeynote: boolean
 };
 
-const trackKey = trackKeyRaw.split('\n').slice(2).filter(line => !!line);
+// const trackKey = trackKeyRaw.split('\n').slice(2).filter(line => !!line);
 
 function getTrackInfo(raw: string, isZh: boolean): SpeechInfo[] {
   let infos = raw.split('\n').slice(2)
@@ -150,23 +150,23 @@ function getTrackInfo(raw: string, isZh: boolean): SpeechInfo[] {
       };
     });
 
-  // add keynote
-  infos = infos.concat(
-    trackKey.filter(line => {
-      return isZh === /[\u4e00-\u9fa5]/.test(line);
-    })
-      .map(line => {
-        const arr = line.split(',');
-        return {
-          track: arr[0],
-          title: arr[2],
-          name: arr[1],
-          topic: arr[3],
-          time: arr[4],
-          isKeynote: true
-        };
-      })
-  );
+  // // add keynote
+  // infos = infos.concat(
+  //   trackKey.filter(line => {
+  //     return isZh === /[\u4e00-\u9fa5]/.test(line);
+  //   })
+  //     .map(line => {
+  //       const arr = line.split(',');
+  //       return {
+  //         track: arr[0],
+  //         title: arr[2],
+  //         name: arr[1],
+  //         topic: arr[3],
+  //         time: arr[4],
+  //         isKeynote: true
+  //       };
+  //     })
+  // );
 
   return infos;
 }
@@ -179,7 +179,7 @@ export default Vue.extend({
     return {
       track: '',
       imageUrl: null as unknown as string,
-      title: '',
+      title: 'CosCon\'22 志愿者',
       name: '',
       topic: '',
       time: '',
@@ -244,7 +244,13 @@ export default Vue.extend({
     nameSelect(item: {track: SpeechInfo, value: string}) {
       this.topic = item.track.topic;
       this.time = item.track.time;
-      this.title = item.track.title;
+      if(!item.track.title) {
+        this.title = "CosCon'22 志愿者";
+      } else if(item.track.title === "出品人") {
+        this.title = item.track.track + item.track.title;
+      } else {
+        this.title = item.track.title;
+      }
       this.isKeynote = item.track.isKeynote;
       this.nameFontReset();
       this.topicFontReset();
@@ -440,12 +446,14 @@ h1 {
 
       .title {
         font-weight: normal;
-        color: #FFE342;
+        /* color: #FFE342; */
+        color: #0d5d60;
       }
 
       .name {
         margin: 0 0 0.5vh 0;
-        color: #FFE342;
+        /* color: #FFE342; */
+        color: #0d5d60;
         font-family: 'SourceHanSerifSC', 'Open Sans';
         font-size: 3.7vh;
         font-weight: bold;
