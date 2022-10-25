@@ -10,7 +10,7 @@ export default {
   },
 
   router: {
-    base: process.env.NODE_ENV === 'development' ? '' : '/COSCon22-poster'
+    base: process.env.VERCEL === '1' ? '' : process.env.NODE_ENV === 'development' ? '' : '/COSCon22-poster'
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
