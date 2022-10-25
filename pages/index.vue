@@ -245,7 +245,7 @@ export default Vue.extend({
       this.topic = item.track.topic;
       this.time = item.track.time;
       if(!item.track.title) {
-        this.title = "CosCon'22 志愿者";
+        this.title = "COSCon'22 志愿者";
       } else if(item.track.title === "出品人") {
         this.title = item.track.track + item.track.title;
       } else {

@@ -10,12 +10,12 @@ export default {
   },
 
   router: {
-    base: process.env.NODE_ENV === 'development' ? '' : '/coscon22'
+    base: process.env.NODE_ENV === 'development' ? '' : '/COSCon22-poster'
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'Coscon\'22 海报生成器',
+    title: 'COSCon\'22 海报生成器',
     htmlAttrs: {
       lang: 'en'
     },
