@@ -35,3 +35,14 @@ jobs:
           # 要发布到 `gh-pages` 分支的构建输出：
           publish_dir: docs
           force_orphan: true
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v20
+        if: ${{ env.VERCEL_TOKEN && env.VERCEL_ORG_ID && env.VERCEL_PROJECT_ID }}
+        with:
+            vercel-token: ${{ secrets.VERCEL_TOKEN }}
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+            vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+            working-directory: ./
+            vercel-args: --prod
